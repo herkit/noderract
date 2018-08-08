@@ -1,0 +1,17 @@
+{
+  "name": "noderract",
+  "version": "0.0.1",
+  "description": "File system watcher interface to tesseract",
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "nodejs app.js"
+  },
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "connect-busboy": "0.0.2",
+    "express": "^4.16.3",
+    "node-tesseract": "^0.2.7"
+  }
+}
