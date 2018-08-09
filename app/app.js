@@ -9,7 +9,9 @@ var datafolder = process.env.NODERRACT_DATA_FOLDER || path.join(__dirname,"../da
 
 var app = express();
 app.use(busboy());
-app.use(express.json());
+app.use(express.json({limit: '4mb'}));
+
+app.use(express.static(path.join(__dirname, 'static')));
 
 app.post("/ocr", function(req, res) {
   var fstream;
@@ -34,6 +36,27 @@ app.post("/ocr", function(req, res) {
       })
     });
   });
+})
+
+app.post("/api/ocr", function(req, res) { 
+  var image = req.body.image;
+  console.log(image);
+
+  var rexp = /data\:(\w+\/\w+);base64,([\/0-9a-zA-Z\+]+)/;
+  var m = image.match(rexp);
+
+  console.log(m);
+
+  if (m) {
+    var datatype = m[1];
+    var data = m[2];
+    res.send({
+      datatype: datatype,
+      text: "some text here?"
+    });
+  } else {
+    res.send({ error: "No image data found" });
+  }
 })
 
 app.listen(3000);

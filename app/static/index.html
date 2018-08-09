@@ -1,0 +1,69 @@
+<html>
+<head>
+<script
+  src="https://code.jquery.com/jquery-3.3.1.min.js"
+  integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8="
+  crossorigin="anonymous"></script>
+</head>
+
+<body>
+<div id="capture">
+<video id="player" autoplay></video>
+<button id="capture">Capture</button>
+</div>
+<div id="preview" style="display: none">
+<canvas id="canvas" width=640 height=1024></canvas>
+<button id="send">Send</button>
+</div>
+<script>
+  $(document).ready(() => {
+    const capture = document.getElementById('capture'); 
+    const player = document.getElementById('player');
+
+    const preview = document.getElementById('preview');
+    const canvas = document.getElementById('canvas');
+    const sendButton = document.getElementById('send');
+
+    const context = canvas.getContext('2d');
+    const captureButton = document.getElementById('capture');
+
+    const constraints = {
+      video: { width: 640, height: 1024 },
+      audio: false
+    };
+
+    captureButton.addEventListener('click', () => {
+      // Draw the video frame to the canvas.
+      context.drawImage(player, 0, 0, canvas.width, canvas.height);
+      // Stop all video streams.
+      player.srcObject.getVideoTracks().forEach(track => track.stop());
+      capture.style.display = "none";
+      preview.style.display = "";
+    });
+
+    sendButton.addEventListener('click', () => {
+      console.log(canvas.toDataURL('image/jpeg'));
+      $.ajax({
+        url: 'api/ocr',
+        method: 'POST',
+        contentType: 'application/json',
+        data: JSON.stringify({
+          image: canvas.toDataURL('image/jpeg')
+        }),
+        dataType: 'json'
+      })
+      .done((response) => {
+        console.log(response);
+        alert("done");
+      });
+    })
+
+    // Attach the video stream to the video element and autoplay.
+    navigator.mediaDevices.getUserMedia(constraints)
+      .then((stream) => {
+        player.srcObject = stream;
+      });
+  });
+</script>
+</body>
+</html>
