@@ -4,9 +4,9 @@ Noderract is a Express.js based web and api wrapper of Tesseract OCR. It launche
 ## To run
 It's recommended to run using docker-compose:
 
-´´´
+```
 > docker-compose build
 > docker-compose run
-´´´
+```
 
 Browse to http://localhost:8082/
