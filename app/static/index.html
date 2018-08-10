@@ -4,19 +4,41 @@
   src="https://code.jquery.com/jquery-3.3.1.min.js"
   integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8="
   crossorigin="anonymous"></script>
+  <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.2.0/css/all.css" integrity="sha384-hWVjflwFxL6sNzntih27bfxkr27PmbbK/iSvJ+a4+0owXq79v+lsFkW54bOGbiDQ" crossorigin="anonymous">
+  <style>
+    .actionbutton {
+      border-radius: 30px;
+      width: 60px;
+      height: 60px;
+      background-color: rgba(255,255,255,.5);
+      color: rgba(255,255,255,1);
+      position: absolute;
+      border-style: solid;
+      border-color: rgba(255,255,255,0.75);
+    }
+
+    #textview {
+      background-color: #000;
+      color: #FFF;
+      font-size: 2em;
+    }
+  </style>
 </head>
 
 <body>
 <div id="capture">
-<video id="player" autoplay></video>
-<button id="capture">Capture</button>
+  <video id="player"></video>
+  <button id="captureButton" class="actionbutton"><i class="fas fa-camera fa-2x"></i></button>
 </div>
 <div id="preview" style="display: none">
-<canvas id="canvas" width=640 height=1024></canvas>
-<button id="send">Send</button>
+  <canvas id="canvas" width=1440 height=2960></canvas>
+  <button id="sendButton" class="actionbutton"><i class="fas fa-share-square fa-2x"></i></button>
 </div>
-<pre id="textview">
-</pre>
+<div id="result" style="display: none">
+  <pre id="textview">
+  </pre>
+  <button id="newButton" class="actionbutton"><i class="fas fa-plus fa-2x"></i></button>
+</div>
 <script>
   $(document).ready(() => {
     const capture = document.getElementById('capture'); 
@@ -24,25 +46,26 @@
 
     const preview = document.getElementById('preview');
     const canvas = document.getElementById('canvas');
-    const sendButton = document.getElementById('send');
-
     const context = canvas.getContext('2d');
-    const captureButton = document.getElementById('capture');
+
+    const sendButton = document.getElementById('sendButton');
+    const captureButton = document.getElementById('captureButton');
+    const newButton = document.getElementById('newButton');
 
     const textview = document.getElementById('textview');
 
+    const views = [capture, preview, result];
+    const buttons = [captureButton, sendButton, newButton];
+
     const constraints = {
-      video: { width: 640, height: 1024, facingMode: "environment" },
+      video: { height: 1280, aspectRatio: { max: 0.667 }, facingMode: "environment" },
       audio: false
     };
 
     captureButton.addEventListener('click', () => {
-      // Draw the video frame to the canvas.
       context.drawImage(player, 0, 0, canvas.width, canvas.height);
-      // Stop all video streams.
       player.srcObject.getVideoTracks().forEach(track => track.stop());
-      capture.style.display = "none";
-      preview.style.display = "";
+      setView(preview);
     });
 
     sendButton.addEventListener('click', () => {
@@ -58,15 +81,41 @@
       })
       .done((response) => {
         textview.innerText = response.text;
-        preview.style.display = "none";
+        setView(result);
       });
     })
 
-    // Attach the video stream to the video element and autoplay.
-    navigator.mediaDevices.getUserMedia(constraints)
-      .then((stream) => {
-        player.srcObject = stream;
-      });
+    newButton.addEventListener('click', () => {
+      startCapture();
+    });
+
+    startCapture();
+
+    function startCapture() {
+      setView(capture);
+      navigator.mediaDevices.getUserMedia(constraints)
+        .then((stream) => {
+          var firstTrack = stream.getVideoTracks()[0];
+          var trackSettings = firstTrack.getSettings();
+          canvas.width = trackSettings.width;
+          canvas.height = trackSettings.height;
+          textview.style.width = trackSettings.width;
+          textview.style.height = trackSettings.height;
+          for(var b in buttons) {
+            buttons[b].style.left = trackSettings.width / 2 - 30;
+            buttons[b].style.top = trackSettings.height - 70;
+          }
+          player.srcObject = stream;
+          player.play();
+        });
+    }
+
+    function setView(view) {
+      for (var v in views) {
+        views[v].style.display = ((views[v].id === view.id) ? "" : "none");
+      }
+    }
+
   });
 </script>
 </body>
