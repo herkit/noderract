@@ -1,6 +1,7 @@
 FROM tesseractshadow/tesseract4re
 RUN apt-get update && apt-get install -y nodejs npm
 COPY /app/*.js* /app/
+COPY /app/static /app/static/
 RUN cd /app && npm install && mkdir /data && mkdir /data/in && mkdir /data/out
 ENV NODERRACT_DATA_FOLDER=/data
 WORKDIR /app
