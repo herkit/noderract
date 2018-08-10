@@ -6,7 +6,7 @@ It's recommended to run using docker-compose:
 
 ```
 > docker-compose build
-> docker-compose run
+> docker-compose up
 ```
 
 Browse to http://localhost:8082/
