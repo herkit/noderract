@@ -30,12 +30,19 @@
 </head>
 
 <body>
+<div id="choosemethod">
+  <button id="chooseCaptureMethod">Capture</button>
+  <button id="chooseUploadMethod">Upload</button>
+</div>
 <div id="capture">
   <video id="player"></video>
   <button id="captureButton" class="actionbutton"><i class="fas fa-camera fa-2x"></i></button>
 </div>
+<div id="upload">
+  <input type="file" name="fileToUpload" id="fileToUpload" onchange="fileSelected();" accept="image/*" capture="camera" />
+</div>
 <div id="preview" style="display: none">
-  <canvas id="canvas" width=1440 height=2960></canvas>
+  <canvas id="canvas"></canvas>
   <button id="sendButton" class="actionbutton"><i class="fas fa-share-square fa-2x"></i></button>
 </div>
 <div id="result" style="display: none">
@@ -43,84 +50,6 @@
   </pre>
   <button id="newButton" class="actionbutton"><i class="fas fa-plus fa-2x"></i></button>
 </div>
-<script>
-  $(document).ready(() => {
-    const capture = document.getElementById('capture'); 
-    const player = document.getElementById('player');
-
-    const preview = document.getElementById('preview');
-    const canvas = document.getElementById('canvas');
-    const context = canvas.getContext('2d');
-
-    const sendButton = document.getElementById('sendButton');
-    const captureButton = document.getElementById('captureButton');
-    const newButton = document.getElementById('newButton');
-
-    const textview = document.getElementById('textview');
-
-    const views = [capture, preview, result];
-    const buttons = [captureButton, sendButton, newButton];
-
-    const constraints = {
-      video: { height: 1280, aspectRatio: { max: 0.667 }, facingMode: "environment" },
-      audio: false
-    };
-
-    captureButton.addEventListener('click', () => {
-      context.drawImage(player, 0, 0, canvas.width, canvas.height);
-      player.srcObject.getVideoTracks().forEach(track => track.stop());
-      setView(preview);
-    });
-
-    sendButton.addEventListener('click', () => {
-      console.log(canvas.toDataURL('image/jpeg'));
-      $.ajax({
-        url: 'api/ocr',
-        method: 'POST',
-        contentType: 'application/json',
-        data: JSON.stringify({
-          image: canvas.toDataURL('image/jpeg')
-        }),
-        dataType: 'json'
-      })
-      .done((response) => {
-        textview.innerText = response.text;
-        setView(result);
-      });
-    })
-
-    newButton.addEventListener('click', () => {
-      startCapture();
-    });
-
-    startCapture();
-
-    function startCapture() {
-      setView(capture);
-      navigator.mediaDevices.getUserMedia(constraints)
-        .then((stream) => {
-          var firstTrack = stream.getVideoTracks()[0];
-          var trackSettings = firstTrack.getSettings();
-          canvas.width = trackSettings.width;
-          canvas.height = trackSettings.height;
-          textview.style.width = trackSettings.width;
-          textview.style.height = trackSettings.height;
-          for(var b in buttons) {
-            buttons[b].style.left = trackSettings.width / 2 - 30;
-            buttons[b].style.top = trackSettings.height - 70;
-          }
-          player.srcObject = stream;
-          player.play();
-        });
-    }
-
-    function setView(view) {
-      for (var v in views) {
-        views[v].style.display = ((views[v].id === view.id) ? "" : "none");
-      }
-    }
-
-  });
-</script>
+<script src="./js/app.js"></script>
 </body>
 </html>

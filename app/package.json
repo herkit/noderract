@@ -2,10 +2,9 @@
   "name": "noderract",
   "version": "0.0.1",
   "description": "File system watcher interface to tesseract",
-  "main": "app.js",
+  "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "nodejs app.js"
+    "start": "nodejs index.js"
   },
   "author": "",
   "license": "MIT",
