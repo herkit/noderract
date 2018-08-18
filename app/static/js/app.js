@@ -20,16 +20,13 @@ $(document).ready(() => {
   const buttons = [captureButton, sendButton, newButton];
   var startCapture = () => {};
 
+  const srcCanvas = document.createElement("canvas");
+  const srcContext = srcCanvas.getContext('2d');
+
   const constraints = {
     video: { height: 1280, aspectRatio: { max: 0.667 }, facingMode: "environment" },
     audio: false
   };
-
-  captureButton.addEventListener('click', () => {
-    context.drawImage(player, 0, 0, canvas.width, canvas.height);
-    player.srcObject.getVideoTracks().forEach(track => track.stop());
-    setView(preview);
-  });
 
   chooseUploadMethod.addEventListener('click', () => {
     startCapture = () => {
@@ -71,8 +68,8 @@ $(document).ready(() => {
       .then((stream) => {
         var firstTrack = stream.getVideoTracks()[0];
         var trackSettings = firstTrack.getSettings();
-        canvas.width = trackSettings.width;
-        canvas.height = trackSettings.height;
+        srcCanvas.width = trackSettings.width;
+        srcCanvas.height = trackSettings.height;
         textview.style.width = trackSettings.width;
         textview.style.height = trackSettings.height;
         for(var b in buttons) {
@@ -84,9 +81,16 @@ $(document).ready(() => {
       });
   }
 
+  captureButton.addEventListener('click', () => {
+    srcContext.drawImage(player, 0, 0, canvas.width, canvas.height);
+    player.srcObject.getVideoTracks().forEach(track => track.stop());
+    setView(preview);
+    updatePreview();
+  });
+
   function setView(view) {
     for (var v in views) {
-      views[v].style.display = ((views[v].id === view.id) ? "" : "none");
+      views[v].style.display = ((views[v].id === view.id) ? "flex" : "none");
     }
   }
 
@@ -99,13 +103,24 @@ $(document).ready(() => {
         img.src = e.target.result;
       }
       img.onload = function() {
-        canvas.width = img.width;
-        canvas.height = img.height;
-        context.drawImage(img, 0, 0);
+        srcCanvas.width = img.width;
+        srcCanvas.height = img.height;
+        srcContext.drawImage(img, 0, 0);
+        fileToUpload.value = "";
         setView(preview);
+        updatePreview();
       }
       reader.readAsDataURL(fileToUpload.files[0]);
     }
+  }
+
+  function updatePreview() {
+    var heightScale = preview.offsetHeight / srcCanvas.height;
+    var widthScale = preview.offsetWidth / srcCanvas.width;
+    var scale = Math.min(heightScale, widthScale)
+    canvas.width  = srcCanvas.width * scale;
+    canvas.height = srcCanvas.height * scale;
+    context.drawImage(srcCanvas, 0, 0, canvas.width, canvas.height);
   }
 
   window.fileSelected = fileSelected;
