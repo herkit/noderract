@@ -121,6 +121,15 @@ $(document).ready(() => {
     canvas.width  = srcCanvas.width * scale;
     canvas.height = srcCanvas.height * scale;
     context.drawImage(srcCanvas, 0, 0, canvas.width, canvas.height);
+    var ctx = canvas.getContext('2d');
+    ctx.strokeStyle = '#f00';
+    ctx.beginPath();
+    ctx.moveTo(10, 10);
+    ctx.lineTo(canvas.width - 10, 10);
+    ctx.lineTo(canvas.width - 10, canvas.height - 10);
+    ctx.lineTo(10, canvas.height - 10);
+    ctx.closePath();
+    ctx.stroke();
   }
 
   window.fileSelected = fileSelected;
