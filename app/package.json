@@ -10,7 +10,7 @@
   "license": "MIT",
   "dependencies": {
     "connect-busboy": "0.0.2",
-    "express": "^4.16.3",
+    "express": "^4.17.3",
     "morgan": "^1.9.0",
     "node-tesseract": "^0.2.7",
     "uuid": "^3.3.2"
